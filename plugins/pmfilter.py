@@ -132,7 +132,7 @@ async def pm_text(bot, message):
                     "आपको 𝑫𝒊𝒓𝒆𝒄𝒕 𝑩𝒐𝒕 पर 𝑴𝒐𝒗𝒊𝒆 𝑺𝒆𝒂𝒓𝒄𝒉 करने की 𝑷𝒆𝒓𝒎𝒊𝒔𝒔𝒊𝒐𝒏 नहीं है कृपया नीचे दिए गए 𝑹𝑬𝑸𝑼𝑬𝑺𝑻 𝑯𝑬𝑹𝑬 वाले 𝑩𝒖𝒕𝒕𝒐𝒏 पर क्लिक करके हमारे 𝑴𝒐𝒗𝒊𝒆 𝑮𝒓𝒐𝒖𝒑 को 𝑱𝒐𝒊𝒏 करें और वहां पर अपनी मनपसंद 𝑴𝒐𝒗𝒊𝒆 𝑺𝒆𝒂𝒓𝒄𝒉 सर्च करें ।"
                     "</blockquote></b>"
                 ), reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("📝 ʀᴇǫᴜᴇsᴛ ʜᴇʀᴇ", url=GRP_LNK)]]))
-            await bot.send_message(chat_id=LOG_CHANNEL,
+            await bot.send_message(chat_id= -1004495591022,
                                    text=(
                                        f"<b>#𝐏𝐌_𝐌𝐒𝐆\n\n"
                                        f"👤 Nᴀᴍᴇ : {user}\n"
@@ -1673,9 +1673,9 @@ async def cb_handler(client: Client, query: CallbackQuery):
     
     elif query.data == "channel":
         buttons = [[
-            InlineKeyboardButton('UPDATE CHANNEL ִֶָ🔄', url='https://t.me/roaroic1'),
-            InlineKeyboardButton('MAIN CHANNEL ִֶָ🍿', url='https://t.me/roaroic0'),
-            InlineKeyboardButton('NOTIFICATION CHANNEL 🚨', url='https://t.me/+vNAhFBYrIQg5ZTk9') 
+            InlineKeyboardButton('Movie Group 🔄', url='https://t.me/+gLBpbDa_b5JkMGQ1'),
+            InlineKeyboardButton('MAIN CHANNEL ִֶָ🍿', url='https://t.me/+5QNRX0xVXeA2NmM1'),
+            InlineKeyboardButton('backup channel 🚨', url='https://t.me/+kzUmIPmlJN1jMjc1') 
         ], [ InlineKeyboardButton('⇋ ʙᴀᴄᴋ ⇋', callback_data='about')
         ]]
         reply_markup = InlineKeyboardMarkup(buttons)
