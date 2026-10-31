@@ -1451,7 +1451,7 @@ async def cb_handler(client: Client, query: CallbackQuery):
                 reply_markup=InlineKeyboardMarkup([
                     [
                         InlineKeyboardButton("🚀 Download ", url=roaroicbot_download),
-                        InlineKeyboardButton('▶️ ᴡᴀᴛᴄʜ', url=roaroicbot_stream)
+                        InlineKeyboardButton('▶️ ᴡᴀᴛᴄʜ', url=)
                     ],
                     [
                         InlineKeyboardButton('📌 ᴊᴏɪɴ ᴜᴘᴅᴀᴛᴇꜱ ᴄʜᴀɴɴᴇʟ 📌', url=UPDATE_CHNL_LNK)
@@ -1469,7 +1469,7 @@ async def cb_handler(client: Client, query: CallbackQuery):
                     "🔗 ʏᴏᴜʀ ʟɪɴᴋꜱ ᴀʀᴇ ʀᴇᴀᴅʏ",
                     reply_markup=InlineKeyboardMarkup([[
                         InlineKeyboardButton("🚀 Download ", url=roaroicbot_download),
-                        InlineKeyboardButton('▶️ ᴡᴀᴛᴄʜ', url=roaroicbot_stream)
+                        InlineKeyboardButton('▶️ ᴡᴀᴛᴄʜ', url=)
                     ]])
                 )
             except Exception as e2:
@@ -1481,7 +1481,7 @@ async def cb_handler(client: Client, query: CallbackQuery):
                 quote=True,
                 disable_web_page_preview=True,
                 reply_markup=InlineKeyboardMarkup([[InlineKeyboardButton("🚀 ꜰᴀsᴛ ᴅᴏᴡɴʟᴏᴀᴅ", url=roaroicbot_download),
-                                                    InlineKeyboardButton('▶️ ᴡᴀᴛᴄʜ ᴏɴʟɪɴᴇ', url=roaroicbot_stream)]])
+                                                    InlineKeyboardButton('▶️ ᴡᴀᴛᴄʜ ᴏɴʟɪɴᴇ', url=)]])
             )
         except Exception as e:
             logger.exception(e)
@@ -1782,7 +1782,7 @@ async def cb_handler(client: Client, query: CallbackQuery):
 
         btn = await group_setting_buttons(int(grp_id))
         roaroicbot_grp = await client.get_chat(int(grp_id))
-        await query.message.edit(text=f"ᴄʜᴀɴɢᴇ ʏᴏᴜʀ ɢʀᴏᴜᴘ ꜱᴇᴛᴛɪɴɢꜱ ✅\nɢʀᴏᴜᴘ ɴᴀᴍᴇ - '{roaroicbot_grp.title}'</b>⚙", reply_markup=InlineKeyboardMarkup(btn))
+        await query.message.edit(text=f"ᴄʜᴀɴɢᴇ ʏᴏᴜʀ ɢʀᴏᴜᴘ ꜱᴇᴛᴛɪɴɢꜱ ✅\nɢʀᴏᴜᴘ ɴᴀᴍᴇ - '{Ganesh_grp.title}'</b>⚙", reply_markup=InlineKeyboardMarkup(btn))
 
     elif query.data.startswith("removegrp"):
         user_id = query.from_user.id
