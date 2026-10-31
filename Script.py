@@ -1,6 +1,6 @@
 # ─────────────────────────────────────────────
-# Powered by Roaroic | Developer Channel: @roaroic0
-# https://t.me/roaroic0
+# Powered by Roaroic | Developer Channel: 
+# https://t.me/+5QNRX0xVXeA2NmM1
 # ─────────────────────────────────────────────
 class script(object):
     START_TXT = """<b>👋 ʜᴇʏ {}, {}</b>
@@ -257,8 +257,8 @@ sʜᴏᴡɴ ɪɴ : {remaining_seconds} <i>sᴇᴄ</i>⚡️
 
     𝙱𝙾𝚃 𝚆𝙾𝚁𝙺𝙸𝙽𝙶 𝙿𝚁𝙾𝙿𝙴𝚁𝙻𝚈....
 
-    Powered by Roaroic | Developer Channel: @roaroic0
-    ᴊᴏɪɴ : https://t.me/roaroic0
+    Powered by Roaroic | Developer Channel: 
+    ᴊᴏɪɴ : https://t.me/+5QNRX0xVXeA2NmM1
     """
 
 
