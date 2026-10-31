@@ -1675,7 +1675,7 @@ async def cb_handler(client: Client, query: CallbackQuery):
         buttons = [[
             InlineKeyboardButton('UPDATE CHANNEL ִֶָ🔄', url='https://t.me/roaroic1'),
             InlineKeyboardButton('MAIN CHANNEL ִֶָ🍿', url='https://t.me/roaroic0'),
-            InlineKeyboardButton('NOTIFICATION CHANNEL 🚨', url='https://t.me/+vNAhFBYrIQg5ZTk9') 
+            InlineKeyboardButton('NOTIFICATION CHANNEL ', url='https://t.me/+vNAhFBYrIQg5ZTk9') 
         ], [ InlineKeyboardButton('⇋ ʙᴀᴄᴋ ⇋', callback_data='about')
         ]]
         reply_markup = InlineKeyboardMarkup(buttons)
