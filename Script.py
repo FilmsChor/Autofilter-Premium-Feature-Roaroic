@@ -216,8 +216,8 @@ Nᴀᴍᴇ : {}
 
 Mᴇꜱꜱᴀɢᴇ : <b>{}</b>"""
     
-    CAPTION = """<b><a href="https://t.me/+5QNRX0xVXeA2NmM1">{file_name}</a></b>
-    <blockquote> <b>🎧 ᴜsᴇ ᴠʟᴄ ᴘʟᴀʏᴇʀ ꜰᴏʀ ᴀᴜᴅɪᴏ ɪssᴜᴇs</b>\n<b>ᴘʟᴢ ғᴏʀᴡᴀʀᴅ ᴛʜɪꜱ ғɪʟᴇ ᴛᴏ ᴛʜᴇ ꜱᴀᴠᴇᴅ ᴍᴇꜱꜱᴀɢᴇ ᴀɴᴅ ᴄʟᴏꜱᴇ.</b></blockquote>\n<b>✨ Powered By : <a href="https://t.me/+aKqqsyd-4MJmMTRl">[ Movie Group ]</a></b>"""
+    CAPTION = """<b><a href="https://t.me/+ga6EY9H-_5xhYjQ1">{file_name}</a></b>
+    <blockquote> <b>🎧 ᴜsᴇ ᴠʟᴄ ᴘʟᴀʏᴇʀ ꜰᴏʀ ᴀᴜᴅɪᴏ ɪssᴜᴇs</b>\n<b>ᴘʟᴢ ғᴏʀᴡᴀʀᴅ ᴛʜɪꜱ ғɪʟᴇ ᴛᴏ ᴛʜᴇ ꜱᴀᴠᴇᴅ ᴍᴇꜱꜱᴀɢᴇ ᴀɴᴅ ᴄʟᴏꜱᴇ.</b></blockquote>\n<b>✨ Powered By : <a href="https://t.me/+t0pMoIwlDO44YzM1">[ @MovieLover6081 ]</a></b>"""
 
     
     MOVIE_UPDATE_NOTIFY_TXT = """
@@ -234,7 +234,7 @@ Mᴇꜱꜱᴀɢᴇ : <b>{}</b>"""
 </blockquote>
 
 
-🔍 <b>Sᴇᴀʀᴄʜ →</b> {search_link}
+🔍 <b>Sᴇᴀʀᴄʜ →</b> {search_link
 """
 
 
