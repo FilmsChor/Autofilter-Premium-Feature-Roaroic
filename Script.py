@@ -216,7 +216,7 @@ Nᴀᴍᴇ : {}
 
 Mᴇꜱꜱᴀɢᴇ : <b>{}</b>"""
     
-    CAPTION = """<b><a href="https://t.me/+ga6EY9H-_5xhYjQ1">{file_name}</a></b>
+    CAPTION = """<b><a href="https://t.me/+QOCBuYEZFK5mNDA1">{file_name}</a></b>
     <blockquote> <b>🎧 ᴜsᴇ ᴠʟᴄ ᴘʟᴀʏᴇʀ ꜰᴏʀ ᴀᴜᴅɪᴏ ɪssᴜᴇs</b>\n<b>ᴘʟᴢ ғᴏʀᴡᴀʀᴅ ᴛʜɪꜱ ғɪʟᴇ ᴛᴏ ᴛʜᴇ ꜱᴀᴠᴇᴅ ᴍᴇꜱꜱᴀɢᴇ ᴀɴᴅ ᴄʟᴏꜱᴇ.</b></blockquote>\n<b>✨ Powered By : <a href="https://t.me/+BLlW_c7EvAYwOTk9">[ @FilmsChor ]</a></b>"""
 
     
