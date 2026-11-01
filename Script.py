@@ -1,5 +1,5 @@
 # ─────────────────────────────────────────────
-# Powered by Roaroic | Developer Channel: auto filter bot
+# Powered by Roaroic | Developer Channel: [@FilmsChor]
 # https://t.me/+gLBpbDa_b5JkMGQ1
 # ─────────────────────────────────────────────
 class script(object):
