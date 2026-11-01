@@ -1,6 +1,6 @@
 # ─────────────────────────────────────────────
-# Powered by Roaroic | Developer Channel: @roaroic0
-# https://t.me/roaroic0
+# Powered by Roaroic | Developer Channel: [@FilmsChor]
+# https://t.me/FilmsChor
 # ─────────────────────────────────────────────
 import re
 import os
