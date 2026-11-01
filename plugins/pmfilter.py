@@ -1659,7 +1659,7 @@ async def cb_handler(client: Client, query: CallbackQuery):
 
     elif query.data == "ɢʀᴏᴜᴘ":
         buttons = [[
-            InlineKeyboardButton('SEARCH GROUP 🏢', url='https://t.me/+QOCBuYEZFK5mNDA1'),
+            InlineKeyboardButton('SEARCH GROUP 🍿', url='https://t.me/+QOCBuYEZFK5mNDA1'),
             InlineKeyboardButton('SUPPORT GROUP 🆘', url='https://t.me/+gLBpbDa_b5JkMGQ1') 
         ],[
             InlineKeyboardButton('⇋ ʙᴀᴄᴋ ᴛᴏ ʜᴏᴍᴇ ⇋', callback_data='start')
@@ -1673,9 +1673,9 @@ async def cb_handler(client: Client, query: CallbackQuery):
     
     elif query.data == "channel":
         buttons = [[
-            InlineKeyboardButton('support Group ', url='https://t.me/+gLBpbDa_b5JkMGQ1'),
+            InlineKeyboardButton('SUPPORT GROUP 🆘', url='https://t.me/+gLBpbDa_b5JkMGQ1'),
             InlineKeyboardButton('MAIN CHANNEL ִֶָ🍿', url='https://t.me/+5QNRX0xVXeA2NmM1'),
-            InlineKeyboardButton('Backup channel ', url='https://t.me/+BLlW_c7EvAYwOTk9') 
+            InlineKeyboardButton('BACKUP CHANNEL 🔁 ', url='https://t.me/+BLlW_c7EvAYwOTk9') 
         ], [ InlineKeyboardButton('⇋ ʙᴀᴄᴋ ⇋', callback_data='about')
         ]]
         reply_markup = InlineKeyboardMarkup(buttons)
