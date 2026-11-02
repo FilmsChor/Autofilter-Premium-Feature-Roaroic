@@ -41,7 +41,7 @@ class script(object):
 🌐 Tɪᴍᴇᴢᴏɴᴇ : <code>Asia/Kolkata</code>
 🛠️ Bᴜɪʟᴅ Sᴛᴀᴛᴜs: <code> v1.4 [ Sᴛᴀʙʟᴇ ]</code>
 
-⚡ Pᴏᴡᴇʀᴇᴅ ʙʏ <a href='https://t.me/+gLBpbDa_b5JkMGQ1'>unknown</a> | @r
+⚡ Pᴏᴡᴇʀᴇᴅ ʙʏ <a href='https://t.me/FilmsChor'>unknown</a> | @FilmsChor
 </b>"""
 
     CHANNELS = """
@@ -258,7 +258,7 @@ sʜᴏᴡɴ ɪɴ : {remaining_seconds} <i>sᴇᴄ</i>⚡️
     𝙱𝙾𝚃 𝚆𝙾𝚁𝙺𝙸𝙽𝙶 𝙿𝚁𝙾𝙿𝙴𝚁𝙻𝚈....
 
     Powered by [@FilmsChor] | Developer Channel: @
-    ᴊᴏɪɴ : https://t.me/+gLBpbDa_b5JkMGQ1
+    ᴊᴏɪɴ : https://t.me/FilmsChor
     """
 
 
