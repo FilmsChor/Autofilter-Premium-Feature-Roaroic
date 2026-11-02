@@ -217,7 +217,7 @@ Nᴀᴍᴇ : {}
 Mᴇꜱꜱᴀɢᴇ : <b>{}</b>"""
     
     CAPTION = """<b><a href="https://t.me/+QOCBuYEZFK5mNDA1">{file_name}</a></b>
-    <blockquote> <b>🎧 ᴜsᴇ ᴠʟᴄ ᴘʟᴀʏᴇʀ ꜰᴏʀ ᴀᴜᴅɪᴏ ɪssᴜᴇs</b>\n<b>ᴘʟᴢ ғᴏʀᴡᴀʀᴅ ᴛʜɪꜱ ғɪʟᴇ ᴛᴏ ᴛʜᴇ ꜱᴀᴠᴇᴅ ᴍᴇꜱꜱᴀɢᴇ ᴀɴᴅ ᴄʟᴏꜱᴇ.</b></blockquote>\n<b>✨ Powered By : <a href="https://t.me/+BLlW_c7EvAYwOTk9">[ @FilmsChor ]</a></b>"""
+    <blockquote> <b>🎧 ᴜsᴇ ᴠʟᴄ ᴘʟᴀʏᴇʀ ꜰᴏʀ ᴀᴜᴅɪᴏ ɪssᴜᴇs</b>\n<b>ᴘʟᴢ ғᴏʀᴡᴀʀᴅ ᴛʜɪꜱ ғɪʟᴇ ᴛᴏ ᴛʜᴇ ꜱᴀᴠᴇᴅ ᴍᴇꜱꜱᴀɢᴇ ᴀɴᴅ ᴄʟᴏꜱᴇ.</b></blockquote>\n<b>✨ Powered By : <a href="https://t.me/+BLlW_c7EvAYwOTk9">[ FilmsChor ]</a></b>"""
 
     
     MOVIE_UPDATE_NOTIFY_TXT = """
