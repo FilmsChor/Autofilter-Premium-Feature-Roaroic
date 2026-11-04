@@ -223,7 +223,7 @@ Mᴇꜱꜱᴀɢᴇ : <b>{}</b>"""
     MOVIE_UPDATE_NOTIFY_TXT = """
 <a href="{poster_url}">📥</a> <a href="{imdb_url}">New {tag} Added</a>
 
-🎬 ᴛɪᴛʟᴇ : <b><code><b>{title} {shortsub}{extension}</b></code></b>
+🎬 ᴛɪᴛʟᴇ : <b><code><b>{filename}</b></code></b>
 
 <blockquote>🎭 ɢᴇɴʀᴇs : <b>{genres}</b>
 📺 ᴏᴛᴛ        : <b>{ott}</b>
