@@ -124,7 +124,7 @@ SHORTENER_WEBSITE3 = environ.get("SHORTENER_WEBSITE3", "arolinks.com") # Shorten
 
 FREE_FILES_BEFORE_VERIFY = int(environ.get('FREE_FILES_BEFORE_VERIFY', "5"))  # Free files EVERY user gets per day (resets 12 AM IST) before verification starts (0 = disabled)
 FREE_DAILY_LIMIT = int(environ.get('FREE_DAILY_LIMIT', "0"))  # Max files per day (resets 12 AM IST) for NON-premium users (0 = unlimited). Premium users are always unlimited
-SENDALL_PREMIUM_ONLY = is_enabled(environ.get('SENDALL_PREMIUM_ONLY', "True"), True)  # True = 'Send All' button only for Premium users (admins always allowed)
+SENDALL_PREMIUM_ONLY = is_enabled(environ.get('SENDALL_PREMIUM_ONLY', "False"), False)  # True = 'Send All' button only for Premium users (admins always allowed)
 TWO_VERIFY_GAP = int(environ.get('TWO_VERIFY_GAP', "1200")) # Time gap for two-step verification in seconds (default: 20 minutes)
 THREE_VERIFY_GAP = int(environ.get('THREE_VERIFY_GAP', "54000"))    
 
