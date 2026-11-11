@@ -1674,7 +1674,7 @@ async def cb_handler(client: Client, query: CallbackQuery):
     elif query.data == "channel":
         buttons = [[
             InlineKeyboardButton('SUPPORT GROUP 🆘', url='https://t.me/+gLBpbDa_b5JkMGQ1'),
-            InlineKeyboardButton('MAIN CHANNEL ִֶָ🍿', url='https://t.me/+8RD5kmWD4H04ZjI9'),
+            InlineKeyboardButton('MAIN CHANNEL ִֶָ🍿', url='https://t.me/+xvBGsY_bn2s3NjA9'),
             InlineKeyboardButton('BACKUP CHANNEL 🔁 ', url='https://t.me/+BLlW_c7EvAYwOTk9') 
         ], [ InlineKeyboardButton('⇋ ʙᴀᴄᴋ ⇋', callback_data='about')
         ]]
