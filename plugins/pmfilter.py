@@ -1454,7 +1454,7 @@ async def cb_handler(client: Client, query: CallbackQuery):
                         InlineKeyboardButton('▶️ ᴡᴀᴛᴄʜ', url=roaroicbot_stream)
                     ],
                     [
-                        InlineKeyboardButton('📌 ᴊᴏɪɴ ᴜᴘᴅᴀᴛᴇꜱ ᴄʜᴀɴɴᴇʟ 📌', url=UPDATE_CHNL_LNK)
+                        InlineKeyboardButton('📌 ᴊᴏɪɴ ᴜᴘᴅᴀᴛᴇꜱ ᴄʜᴀɴɴᴇʟ 📌', url=https://t.me/+xvBGsY_bn2s3NjA9)
                     ]
                 ])
             )
