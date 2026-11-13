@@ -401,7 +401,7 @@ async def send_movie_update(bot, base_name):
             movie_slug = re.sub(r"\s+", "-", base_name.strip())
             bot_url = f"https://t.me/{bot_username}?start=getfile-{movie_slug}" if bot_username else "https://t.me/"
             buttons = InlineKeyboardMarkup([[
-                InlineKeyboardButton("⬇️ ᴍᴏᴠɪᴇ ᴅᴏᴡɴʟᴏᴀᴅ", url=bot_url)
+                InlineKeyboardButton("ɢᴇᴛ ғɪʟᴇs", url=bot_url)
             ]])
 
             msg = None
@@ -462,7 +462,7 @@ async def update_movie_message(bot, base_name):
         movie_slug = re.sub(r"\s+", "-", base_name.strip())
         bot_url = f"https://t.me/{bot_username}?start=getfile-{movie_slug}" if bot_username else "https://t.me/"
         buttons = InlineKeyboardMarkup([[
-            InlineKeyboardButton("⬇️ ᴍᴏᴠɪᴇ ᴅᴏᴡɴʟᴏᴀᴅ", url=bot_url)
+            InlineKeyboardButton("ɢᴇᴛ ғɪʟᴇs", url=bot_url)
         ]])
 
         message_id = movie_doc.get("message_id")
