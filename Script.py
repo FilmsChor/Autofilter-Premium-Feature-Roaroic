@@ -231,9 +231,7 @@ Mᴇꜱꜱᴀɢᴇ : <b>{}</b>"""
 🔉 ᴀᴜᴅɪᴏ : <b>{language}</b>
 🌟 ʀᴀᴛɪɴɢ : <b>{rating}</b>
 {episodes}</blockquote>
-
 ─┉─•✦•─┉─
-
 🔍 <b>Sᴇᴀʀᴄʜ →</b> {search_link}
 """
 
