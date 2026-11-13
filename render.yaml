@@ -25,7 +25,7 @@ services:
       - key: DATABASE_NAME
         value: Cluster0
       - key: CHANNELS
-        sync: false          # space separated file channel ids
+        value: "-1004471639525"  # source/database channel for auto indexing
       - key: LOG_CHANNEL
         sync: false
       - key: BIN_CHANNEL
