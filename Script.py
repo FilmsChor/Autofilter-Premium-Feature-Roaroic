@@ -220,19 +220,20 @@ Mᴇꜱꜱᴀɢᴇ : <b>{}</b>"""
     <blockquote> <b>🎧 ᴜsᴇ ᴠʟᴄ ᴘʟᴀʏᴇʀ ꜰᴏʀ ᴀᴜᴅɪᴏ ɪssᴜᴇs</b>\n<b>ᴘʟᴢ ғᴏʀᴡᴀʀᴅ ᴛʜɪꜱ ғɪʟᴇ ᴛᴏ ᴛʜᴇ ꜱᴀᴠᴇᴅ ᴍᴇꜱꜱᴀɢᴇ ᴀɴᴅ ᴄʟᴏꜱᴇ.</b></blockquote>\n<b>✨ Powered By : <a href="https://t.me/+BLlW_c7EvAYwOTk9">[ FilmsChor ]</a></b>"""
 
     
-    MOVIE_UPDATE_NOTIFY_TXT = """📥 <b>ɴᴇᴡ {tag} ᴀᴅᴅᴇᴅ</b>
+    MOVIE_UPDATE_NOTIFY_TXT = """<blockquote>📥 <b>ɴᴇᴡ {tag} ᴀᴅᴅᴇᴅ</b>
 
 ✨ ᴛɪᴛʟᴇ : <code>{filename}</code>
 ─┉─•✦•─┉─
-<blockquote>🎭 ɢᴇɴʀᴇs : <b>{genres}</b>
+🎭 ɢᴇɴʀᴇs : <b>{genres}</b>
 🍿 ᴏᴛᴛ : <b>{ott}</b>
 ⏱️ ʀᴜɴᴛɪᴍᴇ : <b>{runtime}</b>
 🎬 ǫᴜᴀʟɪᴛʏ : <b>{quality}</b>
 🔉 ᴀᴜᴅɪᴏ : <b>{language}</b>
 🌟 ʀᴀᴛɪɴɢ : <b>{rating}</b>
-{episodes}</blockquote>
+{episodes}
+
 ─┉─•✦•─┉─
-🔍 <b>Sᴇᴀʀᴄʜ →</b> {search_link}
+🔍 <b>Sᴇᴀʀᴄʜ →</b> {search_link}</blockquote>
 """
 
     IMDB_TEMPLATE_TXT = """<b><a href="{url}">{title}</a> (<a href="{url}/releaseinfo">{year}</a>)
