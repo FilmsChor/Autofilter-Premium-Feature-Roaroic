@@ -299,6 +299,7 @@ async def _process_with_lock(bot, filename, caption, media_info, base_name, proc
             "is_landscape": bool(LANDSCAPE_POSTER and TMDB_POSTER and not error_tmdb and details.get("backdrop_url")),
             "genres": genres,
             "rating": details.get("rating", "N/A"),
+            "runtime": details.get("runtime") or "N/A",
             "imdb_url": (details.get("tmdb_url") if TMDB_POSTER and not error_tmdb else details.get("url")) or "",
             "year": media_info["year"] or details.get("year"),
             "tag": media_info["tag"],
@@ -342,14 +343,14 @@ async def send_movie_update(bot, base_name):
 
             text = generate_movie_message(movie_doc, base_name)
             buttons = InlineKeyboardMarkup([[
-                InlineKeyboardButton(
-                    'ɢᴇᴛ ғɪʟᴇs',
-                    url=f"https://t.me/{temp.U_NAME}?start=getfile-{base_name.replace(' ', '-')}"
-                )
-            ]])
+            InlineKeyboardButton(
+                'ᴍᴏᴠɪᴇ ɪɴғᴏ',
+                url=movie_doc.get("imdb_url") or "https://www.themoviedb.org/"
+            )
+        ]])
 
             resized_poster = None
-            if movie_doc.get("poster_url") and not LINK_PREVIEW:
+            if movie_doc.get("poster_url"):
                 resized_poster = await fetch_image(
                     movie_doc["poster_url"],
                     size=(1920, 1080) if movie_doc.get("is_landscape") else (853, 1280)
@@ -397,8 +398,8 @@ async def update_movie_message(bot, base_name):
         text = generate_movie_message(movie_doc, base_name)
         buttons = InlineKeyboardMarkup([[
             InlineKeyboardButton(
-                'ɢᴇᴛ ғɪʟᴇs',
-                url=f"https://t.me/{temp.U_NAME}?start=getfile-{base_name.replace(' ', '-')}"
+                'ᴍᴏᴠɪᴇ ɪɴғᴏ',
+                url=movie_doc.get("imdb_url") or "https://www.themoviedb.org/"
             )
         ]])
 
@@ -523,5 +524,6 @@ def generate_movie_message(movie_doc, base_name):
         language=language_str,
         episodes=epi_block,
         rating=movie_doc.get("rating", "N/A"),
+        runtime=movie_doc.get("runtime", "N/A"),
         search_link=temp.B_LINK
     )
