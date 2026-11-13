@@ -7,7 +7,7 @@ import aiohttp
 import warnings
 import logging
 from io import BytesIO
-from PIL import Image
+from PIL import Image, ImageDraw, ImageFont, ImageOps
 from info import ROAROIC_IMAGE_FETCH, TMDB_API_KEY
 from imdb import Cinemagoer
 
@@ -49,7 +49,8 @@ async def fetch_image(url, size=(860, 1200)):
                 img = Image.open(BytesIO(data))
                 img.load()
                 img = img.convert("RGB")
-                img = img.resize(size, Image.LANCZOS)
+                # Fit the image to the requested aspect ratio (16:9 for channel posts).
+                img = ImageOps.fit(img, size, method=Image.LANCZOS, centering=(0.5, 0.45))
 
                 out = BytesIO()
                 img.save(out, format="JPEG", quality=92)
@@ -64,6 +65,57 @@ async def fetch_image(url, size=(860, 1200)):
         logger.error(f"Unexpected error in fetch_image: {e}")
 
     return None
+
+
+def create_fallback_thumbnail(title, size=(1920, 1080)):
+    """Create a 16:9 title thumbnail when IMDb/TMDB does not return an image."""
+    width, height = size
+    image = Image.new("RGB", size)
+    pixels = image.load()
+    for y in range(height):
+        shade = int(12 + (y / max(height - 1, 1)) * 34)
+        for x in range(width):
+            glow = int(22 * (1 - abs(x - width * 0.72) / width))
+            pixels[x, y] = (max(5, shade + glow), max(8, shade), min(55, shade + 28))
+    draw = ImageDraw.Draw(image, "RGBA")
+    draw.ellipse((width * 0.62, -height * 0.45, width * 1.12, height * 0.55), fill=(70, 90, 150, 45))
+    draw.rounded_rectangle((width * 0.055, height * 0.12, width * 0.945, height * 0.88),
+                           radius=36, outline=(220, 220, 255, 110), width=3)
+    try:
+        font = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf", max(42, int(height * 0.105)))
+        small_font = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf", max(24, int(height * 0.035)))
+    except Exception:
+        font = ImageFont.load_default()
+        small_font = font
+    words = str(title or "MOVIE").strip().split()
+    lines, line = [], ""
+    max_width = int(width * 0.78)
+    for word in words:
+        candidate = f"{line} {word}".strip()
+        if line and draw.textbbox((0, 0), candidate, font=font)[2] > max_width:
+            lines.append(line)
+            line = word
+        else:
+            line = candidate
+    if line:
+        lines.append(line)
+    lines = lines[:3] or ["MOVIE"]
+    heights = [draw.textbbox((0, 0), item, font=font)[3] for item in lines]
+    y = (height - sum(heights) - int(len(lines) * height * 0.025)) // 2
+    for item, line_height in zip(lines, heights):
+        box = draw.textbbox((0, 0), item, font=font)
+        x = (width - (box[2] - box[0])) // 2
+        draw.text((x + 3, y + 4), item, font=font, fill=(0, 0, 0, 180))
+        draw.text((x, y), item, font=font, fill=(255, 255, 255, 255))
+        y += line_height + int(height * 0.025)
+    label = "MOVIE UPDATE"
+    box = draw.textbbox((0, 0), label, font=small_font)
+    draw.text(((width - (box[2] - box[0])) // 2, int(height * 0.81)),
+              label, font=small_font, fill=(210, 220, 255, 230))
+    output = BytesIO()
+    image.save(output, format="JPEG", quality=92)
+    output.seek(0)
+    return output
 
 
 async def get_movie_details(query, id=False, file=None):
