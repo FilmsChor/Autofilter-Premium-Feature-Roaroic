@@ -277,14 +277,20 @@ async def _process_with_lock(bot, filename, caption, media_info, base_name, proc
     }
 
     if not movie_doc:
-        if TMDB_POSTER:
-            details = await get_movie_detailsx(base_name) or {"error": "empty"}
-            if details.get("error") or not (details.get("poster_url") or details.get("backdrop_url")):
-                error_tmdb=True
-                logger.info(f"TMDB failed/no poster ({details.get('error')}), switching to IMDB")
+        details = {}
+        try:
+            if TMDB_POSTER:
+                details = await get_movie_detailsx(base_name) or {"error": "empty"}
+                if details.get("error") or not (details.get("poster_url") or details.get("backdrop_url")):
+                    error_tmdb = True
+                    logger.info("[MOVIE UPDATE] TMDB lookup failed/no poster for %s; trying IMDb", base_name)
+                    details = await get_movie_details(base_name) or {}
+            else:
                 details = await get_movie_details(base_name) or {}
-        else:
-            details = await get_movie_details(base_name) or {}
+        except Exception:
+            # Metadata providers must not prevent the channel announcement.
+            logger.exception("[MOVIE UPDATE] Metadata lookup failed for %s; posting with fallback values", base_name)
+            details = {}
 
         raw_genres = details.get("genres", "N/A")
         if isinstance(raw_genres, str):
