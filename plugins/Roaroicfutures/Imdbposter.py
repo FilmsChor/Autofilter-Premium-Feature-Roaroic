@@ -7,7 +7,7 @@ import aiohttp
 import warnings
 import logging
 from io import BytesIO
-from PIL import Image, ImageDraw, ImageFont, ImageOps
+from PIL import Image, ImageDraw, ImageFont, ImageOps, ImageFilter, ImageOps
 from info import ROAROIC_IMAGE_FETCH, TMDB_API_KEY
 from imdb import Cinemagoer
 
@@ -49,8 +49,16 @@ async def fetch_image(url, size=(860, 1200)):
                 img = Image.open(BytesIO(data))
                 img.load()
                 img = img.convert("RGB")
-                # Fit the image to the requested aspect ratio (16:9 for channel posts).
-                img = ImageOps.fit(img, size, method=Image.LANCZOS, centering=(0.5, 0.45))
+                # Preserve the complete official poster. Fill the 16:9 canvas with
+                # a softened background copy instead of cropping the foreground.
+                background = ImageOps.fit(img.copy(), size, method=Image.LANCZOS).filter(
+                    ImageFilter.GaussianBlur(radius=max(12, int(size[1] * 0.025)))
+                )
+                foreground = ImageOps.contain(img, size, method=Image.LANCZOS)
+                x = (size[0] - foreground.width) // 2
+                y = (size[1] - foreground.height) // 2
+                background.paste(foreground, (x, y))
+                img = background
 
                 out = BytesIO()
                 img.save(out, format="JPEG", quality=92)
