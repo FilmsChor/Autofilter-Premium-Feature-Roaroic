@@ -33,19 +33,26 @@ async def fetch_image(url, size=(860, 1200)):
         return None
 
     try:
-        async with aiohttp.ClientSession() as session:
-            async with session.get(url) as response:
+        timeout = aiohttp.ClientTimeout(total=25)
+        headers = {"User-Agent": "Mozilla/5.0 (compatible; MoviePosterBot/1.0)"}
+        async with aiohttp.ClientSession(timeout=timeout, headers=headers) as session:
+            async with session.get(url, allow_redirects=True) as response:
                 if response.status != 200:
-                    logger.error(f"Failed to fetch image: {response.status}")
+                    logger.error("[MOVIE UPDATE] Poster image request failed: HTTP %s (%s)", response.status, url)
                     return None
 
                 data = await response.read()
+                if not data:
+                    logger.error("[MOVIE UPDATE] Poster image response was empty: %s", url)
+                    return None
+
                 img = Image.open(BytesIO(data))
+                img.load()
+                img = img.convert("RGB")
                 img = img.resize(size, Image.LANCZOS)
 
-
                 out = BytesIO()
-                img.save(out, format="JPEG")
+                img.save(out, format="JPEG", quality=92)
                 out.seek(0)
                 return out
 
