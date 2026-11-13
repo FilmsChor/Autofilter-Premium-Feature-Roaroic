@@ -222,7 +222,7 @@ Mᴇꜱꜱᴀɢᴇ : <b>{}</b>"""
     
     MOVIE_UPDATE_NOTIFY_TXT = """📥 <b>ɴᴇᴡ {tag} ᴀᴅᴅᴇᴅ</b>
 
-✨ ᴛɪᴛʟᴇ : <b>{filename}</b>
+✨ ᴛɪᴛʟᴇ : <code>{filename}</code>
 ─┉─•✦•─┉─
 <blockquote>🎭 ɢᴇɴʀᴇs : <b>{genres}</b>
 🍿 ᴏᴛᴛ : <b>{ott}</b>
