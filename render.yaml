@@ -41,6 +41,10 @@ services:
         sync: false
       - key: TMDB_API_KEY
         sync: false
+      - key: MOVIE_UPDATE_CHANNEL
+        sync: false          # destination channel ID; bot must be an admin
+      - key: MOVIE_UPDATE_NOTIFICATION
+        value: "True"       # enable automatic movie update posts
       - key: CACHE_TIME
         value: "300"
       - key: ULTRA_FAST_MODE
