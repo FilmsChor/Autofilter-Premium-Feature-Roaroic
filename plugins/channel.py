@@ -442,13 +442,7 @@ async def send_movie_update(bot, base_name):
                     logger.exception("[MOVIE UPDATE] Fallback thumbnail send failed for %s", base_name)
 
             if msg is None:
-                msg = await bot.send_message(
-                    chat_id=MOVIE_UPDATE_CHANNEL,
-                    text=text,
-                    reply_markup=buttons,
-                    parse_mode=enums.ParseMode.HTML,
-                    disable_web_page_preview=not LINK_PREVIEW
-                )
+                raise RuntimeError("Could not publish the 16:9 thumbnail; refusing to create a text-only post.")
 
             await db.movie_updates.update_one(
                 {"_id": base_name},
