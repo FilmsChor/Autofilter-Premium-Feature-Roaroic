@@ -92,7 +92,7 @@ DATABASE_URI2 = environ.get('DATABASE_URI2', "")  # MongoDB URI for the second d
 # Movie Notification & Update Settings
 # ============================
 MOVIE_UPDATE_NOTIFICATION = is_enabled(str(environ.get('MOVIE_UPDATE_NOTIFICATION', 'True')), True)  # Notification On (True) / Off (False)
-MOVIE_UPDATE_CHANNEL = int(environ.get('MOVIE_UPDATE_CHANNEL', '-1004317238657'))  # Notification of sent to your channel
+MOVIE_UPDATE_CHANNEL = int(environ.get('MOVIE_UPDATE_CHANNEL', '-1004406237317'))  # Notification of sent to your channel
 ROAROIC_IMAGE_FETCH = is_enabled(str(environ.get('ROAROIC_IMAGE_FETCH', True)), True)  # On (True) / Off (False)
 LINK_PREVIEW = is_enabled(str(environ.get('LINK_PREVIEW', True)), True) # Shows link preview in notification msg instead of image
 ABOVE_PREVIEW = is_enabled(str(environ.get('ABOVE_PREVIEW', True)), True) # Shows link preview above the text in notification msg if True else below the msg
