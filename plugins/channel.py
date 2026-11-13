@@ -291,31 +291,44 @@ async def _process_with_lock(bot, filename, caption, media_info, base_name, proc
         "episode": media_info["episode"]
     }
 
-    # If an earlier post was created without an IMDb poster, retry the IMDb lookup on the next upload.
+    # Retry official TMDB artwork first, then IMDb, for records created without artwork.
     if movie_doc and not movie_doc.get("poster_url"):
         try:
-            imdb_details = await get_movie_details(base_name) or {}
-            imdb_poster = imdb_details.get("poster_url")
-            if imdb_poster:
+            poster_details = {}
+            if TMDB_POSTER:
+                poster_details = await get_movie_detailsx(base_name) or {}
+            if poster_details.get("error") or not (poster_details.get("backdrop_url") or poster_details.get("poster_url")):
+                poster_details = await get_movie_details(base_name) or {}
+                poster_source = "imdb" if poster_details.get("poster_url") else "fallback"
+            else:
+                poster_source = "tmdb"
+
+            official_image = poster_details.get("backdrop_url") or poster_details.get("poster_url")
+            if official_image:
                 await db.movie_updates.update_one(
                     {"_id": base_name},
-                    {"$set": {"poster_url": imdb_poster, "imdb_url": imdb_details.get("url") or movie_doc.get("imdb_url", "")}}
+                    {"$set": {
+                        "poster_url": official_image,
+                        "poster_source": poster_source,
+                        "imdb_url": (poster_details.get("tmdb_url") or poster_details.get("url") or movie_doc.get("imdb_url", ""))
+                    }}
                 )
-                movie_doc["poster_url"] = imdb_poster
-                logger.info("[MOVIE UPDATE] IMDb poster found on retry for %s", base_name)
-                # Replace a previous text-only announcement with a poster announcement.
-                if movie_doc.get("message_id") and not movie_doc.get("is_photo"):
+                movie_doc["poster_url"] = official_image
+                movie_doc["poster_source"] = poster_source
+                logger.info("[MOVIE UPDATE] Official poster found on retry for %s via %s", base_name, poster_source)
+                # Replace a previously generated fallback image with the official artwork.
+                if movie_doc.get("message_id") and movie_doc.get("poster_source") in ("fallback", None):
                     try:
                         await bot.delete_messages(MOVIE_UPDATE_CHANNEL, movie_doc["message_id"])
                     except Exception:
-                        logger.exception("[MOVIE UPDATE] Could not replace old text-only post for %s", base_name)
+                        logger.exception("[MOVIE UPDATE] Could not replace fallback thumbnail for %s", base_name)
                     await db.movie_updates.update_one(
                         {"_id": base_name},
                         {"$set": {"message_id": None, "is_photo": False}}
                     )
                     movie_doc["message_id"] = None
         except Exception:
-            logger.exception("[MOVIE UPDATE] IMDb poster retry failed for %s", base_name)
+            logger.exception("[MOVIE UPDATE] TMDB/IMDb poster retry failed for %s", base_name)
 
     if not movie_doc:
         details = {}
@@ -343,6 +356,7 @@ async def _process_with_lock(bot, filename, caption, media_info, base_name, proc
             "_id": base_name,
             "files": [file_data],
             "poster_url": details.get("backdrop_url") or details.get("poster_url"),
+            "poster_source": ("tmdb" if TMDB_POSTER and not error_tmdb and (details.get("backdrop_url") or details.get("poster_url")) else "imdb" if details.get("poster_url") else "fallback"),
             "is_landscape": True,
             "genres": genres,
             "rating": details.get("rating", "N/A"),
@@ -362,8 +376,7 @@ async def _process_with_lock(bot, filename, caption, media_info, base_name, proc
             movie_doc = await db.movie_updates.find_one({"_id": base_name})
             if movie_doc:
                 if any(f["filename"] == filename for f in movie_doc["files"]):
-                    # A repeated upload is a request to publish the movie again.
-                    await send_movie_update(bot, base_name)
+                    # Duplicate file: keep the existing single movie announcement.
                     return
                 await db.movie_updates.update_one(
                     {"_id": base_name},
@@ -373,9 +386,7 @@ async def _process_with_lock(bot, filename, caption, media_info, base_name, proc
                 schedule_update(bot, base_name)
     else:
         if any(f["filename"] == filename for f in movie_doc["files"]):
-            # Re-uploading the same filename is an explicit retry request.
-            # Publish it again even though the database already has this file.
-            await send_movie_update(bot, base_name)
+            # Same file is already indexed and announced; do not create another post.
             return
         await db.movie_updates.update_one(
             {"_id": base_name},
@@ -428,6 +439,7 @@ async def send_movie_update(bot, base_name):
                 except Exception:
                     logger.exception("[MOVIE UPDATE] Remote poster send failed for %s", base_name)
 
+            used_fallback = False
             if msg is None:
                 try:
                     fallback = create_fallback_thumbnail(base_name, size=(1920, 1080))
@@ -438,15 +450,20 @@ async def send_movie_update(bot, base_name):
                         reply_markup=buttons,
                         parse_mode=enums.ParseMode.HTML
                     )
+                    used_fallback = True
                 except Exception:
                     logger.exception("[MOVIE UPDATE] Fallback thumbnail send failed for %s", base_name)
 
             if msg is None:
-                raise RuntimeError("Could not publish the 16:9 thumbnail; refusing to create a text-only post.")
+                raise RuntimeError("Could not publish the thumbnail; refusing to create a text-only post.")
 
             await db.movie_updates.update_one(
                 {"_id": base_name},
-                {"$set": {"message_id": msg.id, "is_photo": bool(getattr(msg, "photo", None))}}
+                {"$set": {
+                    "message_id": msg.id,
+                    "is_photo": bool(getattr(msg, "photo", None)),
+                    "poster_source": "fallback" if used_fallback else movie_doc.get("poster_source", "tmdb")
+                }}
             )
             logger.info("[MOVIE UPDATE] Successfully posted %s to channel %s (message_id=%s)",
                         base_name, MOVIE_UPDATE_CHANNEL, msg.id)
