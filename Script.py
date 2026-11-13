@@ -220,23 +220,22 @@ Mᴇꜱꜱᴀɢᴇ : <b>{}</b>"""
     <blockquote> <b>🎧 ᴜsᴇ ᴠʟᴄ ᴘʟᴀʏᴇʀ ꜰᴏʀ ᴀᴜᴅɪᴏ ɪssᴜᴇs</b>\n<b>ᴘʟᴢ ғᴏʀᴡᴀʀᴅ ᴛʜɪꜱ ғɪʟᴇ ᴛᴏ ᴛʜᴇ ꜱᴀᴠᴇᴅ ᴍᴇꜱꜱᴀɢᴇ ᴀɴᴅ ᴄʟᴏꜱᴇ.</b></blockquote>\n<b>✨ Powered By : <a href="https://t.me/+BLlW_c7EvAYwOTk9">[ FilmsChor ]</a></b>"""
 
     
-    MOVIE_UPDATE_NOTIFY_TXT = """
-<a href="{poster_url}">📥</a> <a href="{imdb_url}">New {tag} Added</a>
+    MOVIE_UPDATE_NOTIFY_TXT = """📥 <b>ɴᴇᴡ {tag} ᴀᴅᴅᴇᴅ</b>
 
-🎬 ᴛɪᴛʟᴇ : <b><code><b><{filename}</b></code></b>
-
+✨ ᴛɪᴛʟᴇ : <b>{filename}</b>
+─┉─•✦•─┉─
 <blockquote>🎭 ɢᴇɴʀᴇs : <b>{genres}</b>
-📺 ᴏᴛᴛ        : <b>{ott}</b>
-🎞️ ǫᴜᴀʟɪᴛʏ : <b>{quality}</b>
-🎧 ᴀᴜᴅɪᴏ    : <b>{language}</b>
-🔥 ʀᴀᴛɪɴɢ   : <b>{rating}</b>
-{episodes}
-</blockquote>
+🍿 ᴏᴛᴛ : <b>{ott}</b>
+⏱️ ʀᴜɴᴛɪᴍᴇ : <b>{runtime}</b>
+🎬 ǫᴜᴀʟɪᴛʏ : <b>{quality}</b>
+🔉 ᴀᴜᴅɪᴏ : <b>{language}</b>
+🌟 ʀᴀᴛɪɴɢ : <b>{rating}</b>
+{episodes}</blockquote>
 
+─┉─•✦•─┉─
 
-🔍 <b>Sᴇᴀʀᴄʜ →</b> {search_link
+🔍 <b>Sᴇᴀʀᴄʜ →</b> {search_link}
 """
-
 
     IMDB_TEMPLATE_TXT = """<b><a href="{url}">{title}</a> (<a href="{url}/releaseinfo">{year}</a>)
 
