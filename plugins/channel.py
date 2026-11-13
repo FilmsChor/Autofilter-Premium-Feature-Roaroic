@@ -324,69 +324,84 @@ async def _process_with_lock(bot, filename, caption, media_info, base_name, proc
                 schedule_update(bot, base_name)
     else:
         if any(f["filename"] == filename for f in movie_doc["files"]):
+            # A previous send may have failed after the DB record was created.
+            # Retry the missing channel post instead of silently ignoring this upload.
+            if not movie_doc.get("message_id"):
+                await send_movie_update(bot, base_name)
             return
         await db.movie_updates.update_one(
             {"_id": base_name},
             {"$push": {"files": file_data}}
         )
         movie_doc["files"].append(file_data)
-        schedule_update(bot, base_name)
+        if not movie_doc.get("message_id"):
+            await send_movie_update(bot, base_name)
+        else:
+            schedule_update(bot, base_name)
 
 async def send_movie_update(bot, base_name):
+    """Send the update post; fall back to a text post if poster handling fails."""
     max_retries = 3
-    base_delay = 5
     for attempt in range(max_retries):
         try:
             movie_doc = await db.movie_updates.find_one({"_id": base_name})
             if not movie_doc:
+                logger.warning("[MOVIE UPDATE] No database record found for %s", base_name)
                 return None
 
             text = generate_movie_message(movie_doc, base_name)
             buttons = InlineKeyboardMarkup([[
-            InlineKeyboardButton(
-                'ᴍᴏᴠɪᴇ ɪɴғᴏ',
-                url=movie_doc.get("imdb_url") or "https://www.themoviedb.org/"
-            )
-        ]])
+                InlineKeyboardButton(
+                    "ᴍᴏᴠɪᴇ ɪɴғᴏ",
+                    url=movie_doc.get("imdb_url") or "https://www.themoviedb.org/"
+                )
+            ]])
 
-            resized_poster = None
-            if movie_doc.get("poster_url"):
-                resized_poster = await fetch_image(
-                    movie_doc["poster_url"],
-                    size=(1920, 1080) if movie_doc.get("is_landscape") else (853, 1280)
-                )
-            if resized_poster:
-                msg = await bot.send_photo(
+            msg = None
+            poster_url = movie_doc.get("poster_url")
+            if poster_url:
+                try:
+                    resized_poster = await fetch_image(
+                        poster_url,
+                        size=(1920, 1080) if movie_doc.get("is_landscape") else (853, 1280)
+                    )
+                    if resized_poster:
+                        msg = await bot.send_photo(
+                            chat_id=MOVIE_UPDATE_CHANNEL,
+                            photo=resized_poster,
+                            caption=text,
+                            reply_markup=buttons,
+                            parse_mode=enums.ParseMode.HTML
+                        )
+                except Exception:
+                    logger.exception("[MOVIE UPDATE] Poster send failed for %s; trying text post", base_name)
+
+            if msg is None:
+                msg = await bot.send_message(
                     chat_id=MOVIE_UPDATE_CHANNEL,
-                    photo=resized_poster,
-                    caption=text,
+                    text=text,
                     reply_markup=buttons,
-                    parse_mode=enums.ParseMode.HTML
+                    parse_mode=enums.ParseMode.HTML,
+                    disable_web_page_preview=not LINK_PREVIEW
                 )
-                is_photo = True
-            else:
-                send_params = {
-                    "chat_id": MOVIE_UPDATE_CHANNEL,
-                    "text": text,
-                    "reply_markup": buttons,
-                    "parse_mode": enums.ParseMode.HTML
-                }
-                if movie_doc.get("poster_url") and LINK_PREVIEW:
-                    send_params["invert_media"] = ABOVE_PREVIEW
-                msg = await bot.send_message(**send_params)
-                is_photo = False
 
             await db.movie_updates.update_one(
                 {"_id": base_name},
-                {"$set": {"message_id": msg.id, "is_photo": is_photo}}
+                {"$set": {"message_id": msg.id, "is_photo": bool(poster_url and getattr(msg, "photo", None))}}
             )
+            logger.info("[MOVIE UPDATE] Successfully posted %s to channel %s (message_id=%s)",
+                        base_name, MOVIE_UPDATE_CHANNEL, msg.id)
             return msg
+
         except FloodWait as e:
             wait_time = e.value + 2
+            logger.warning("[MOVIE UPDATE] FloodWait; retrying in %s seconds", wait_time)
             await asyncio.sleep(wait_time)
-        except Exception as e:
-            logger.error(f"Failed to send movie update: {e}")
-            break
+        except Exception:
+            logger.exception("[MOVIE UPDATE] Failed to send %s to channel %s (attempt %s/%s)",
+                             base_name, MOVIE_UPDATE_CHANNEL, attempt + 1, max_retries)
+            if attempt < max_retries - 1:
+                await asyncio.sleep(3 * (attempt + 1))
     return None
 
 async def update_movie_message(bot, base_name):
