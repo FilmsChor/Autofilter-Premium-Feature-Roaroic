@@ -371,7 +371,10 @@ async def send_movie_update(bot, base_name):
                 return None
 
             text = generate_movie_message(movie_doc, base_name)
+            bot_username = (getattr(temp, "U_NAME", None) or "").lstrip("@")
+            bot_url = f"https://t.me/{bot_username}" if bot_username else "https://t.me/"
             buttons = InlineKeyboardMarkup([[
+                InlineKeyboardButton("ɢᴇᴛ ғɪʟᴇs", url=bot_url),
                 InlineKeyboardButton(
                     "ᴍᴏᴠɪᴇ ɪɴғᴏ",
                     url=movie_doc.get("imdb_url") or "https://www.themoviedb.org/"
@@ -432,7 +435,10 @@ async def update_movie_message(bot, base_name):
             return
 
         text = generate_movie_message(movie_doc, base_name)
+        bot_username = (getattr(temp, "U_NAME", None) or "").lstrip("@")
+        bot_url = f"https://t.me/{bot_username}" if bot_username else "https://t.me/"
         buttons = InlineKeyboardMarkup([[
+            InlineKeyboardButton("ɢᴇᴛ ғɪʟᴇs", url=bot_url),
             InlineKeyboardButton(
                 'ᴍᴏᴠɪᴇ ɪɴғᴏ',
                 url=movie_doc.get("imdb_url") or "https://www.themoviedb.org/"
