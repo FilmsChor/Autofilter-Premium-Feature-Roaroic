@@ -204,25 +204,42 @@ def extract_media_info(filename: str, caption: str):
 
 @Client.on_message(filters.chat(CHANNELS) & MEDIA_FILTER)
 async def media_handler(bot, message):
-    media = next(
-        (getattr(message, ft) for ft in ("document", "video", "audio")
-         if getattr(message, ft, None)),
-        None
-    )
-    if not media:
-        return
-
-    media.file_type = next(ft for ft in ("document", "video", "audio") if hasattr(message, ft))
-    media.caption = message.caption or ""
-    success, info = await save_file(media)
-    if not success:
-        return
-
     try:
-        if await db.movie_update_status(bot.me.id):
-            await process_and_send_update(bot, media.file_name, media.caption)
+        media_type = next(
+            (ft for ft in ("document", "video", "audio")
+             if getattr(message, ft, None)),
+            None
+        )
+        if not media_type:
+            logger.warning("[MOVIE UPDATE] No supported media found in channel post %s", message.id)
+            return
+
+        media = getattr(message, media_type)
+        media.file_type = media_type
+        caption = message.caption or ""
+        filename = (
+            getattr(media, "file_name", None)
+            or getattr(media, "title", None)
+            or (caption.splitlines()[0].strip() if caption.strip() else None)
+            or f"Telegram_{media.file_unique_id}"
+        )
+        media.file_name = filename
+        media.caption = caption
+
+        success, info = await save_file(media)
+        if not success:
+            logger.info("[MOVIE UPDATE] File not saved; notification skipped. file=%s status=%s", filename, info)
+            return
+
+        enabled = await db.movie_update_status(bot.me.id)
+        if not enabled:
+            logger.info("[MOVIE UPDATE] Notifications are disabled in bot_settings for bot %s", bot.me.id)
+            return
+
+        logger.info("[MOVIE UPDATE] Processing channel file: %s (type=%s)", filename, media_type)
+        await process_and_send_update(bot, filename, caption)
     except Exception:
-        logger.exception("Error processing media")
+        logger.exception("[MOVIE UPDATE] Error handling channel media post %s", getattr(message, "id", "unknown"))
 
 async def process_and_send_update(bot, filename, caption):
     try:
