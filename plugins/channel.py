@@ -291,6 +291,32 @@ async def _process_with_lock(bot, filename, caption, media_info, base_name, proc
         "episode": media_info["episode"]
     }
 
+    # If an earlier post was created without an IMDb poster, retry the IMDb lookup on the next upload.
+    if movie_doc and not movie_doc.get("poster_url"):
+        try:
+            imdb_details = await get_movie_details(base_name) or {}
+            imdb_poster = imdb_details.get("poster_url")
+            if imdb_poster:
+                await db.movie_updates.update_one(
+                    {"_id": base_name},
+                    {"$set": {"poster_url": imdb_poster, "imdb_url": imdb_details.get("url") or movie_doc.get("imdb_url", "")}}
+                )
+                movie_doc["poster_url"] = imdb_poster
+                logger.info("[MOVIE UPDATE] IMDb poster found on retry for %s", base_name)
+                # Replace a previous text-only announcement with a poster announcement.
+                if movie_doc.get("message_id") and not movie_doc.get("is_photo"):
+                    try:
+                        await bot.delete_messages(MOVIE_UPDATE_CHANNEL, movie_doc["message_id"])
+                    except Exception:
+                        logger.exception("[MOVIE UPDATE] Could not replace old text-only post for %s", base_name)
+                    await db.movie_updates.update_one(
+                        {"_id": base_name},
+                        {"$set": {"message_id": None, "is_photo": False}}
+                    )
+                    movie_doc["message_id"] = None
+        except Exception:
+            logger.exception("[MOVIE UPDATE] IMDb poster retry failed for %s", base_name)
+
     if not movie_doc:
         details = {}
         try:
