@@ -226,14 +226,29 @@ async def media_handler(bot, message):
         media.file_name = filename
         media.caption = caption
 
-        success, info = await save_file(media)
-        if not success:
-            logger.info("[MOVIE UPDATE] File not saved; notification skipped. file=%s status=%s", filename, info)
-            return
+        # Indexing and announcement are separate tasks. A duplicate in the
+        # search database must not stop the movie-update announcement.
+        try:
+            success, info = await save_file(media)
+            if not success:
+                logger.info(
+                    "[MOVIE UPDATE] Search index did not add file (duplicate or save issue); "
+                    "continuing announcement pipeline. file=%s status=%s",
+                    filename, info
+                )
+        except Exception:
+            logger.exception(
+                "[MOVIE UPDATE] Search indexing failed for %s; continuing announcement pipeline",
+                filename
+            )
 
         enabled = await db.movie_update_status(bot.me.id)
+        logger.info(
+            "[MOVIE UPDATE] Source post received: chat_id=%s message_id=%s enabled=%s destination=%s",
+            message.chat.id, message.id, enabled, MOVIE_UPDATE_CHANNEL
+        )
         if not enabled:
-            logger.info("[MOVIE UPDATE] Notifications are disabled in bot_settings for bot %s", bot.me.id)
+            logger.warning("[MOVIE UPDATE] Notifications are OFF in bot_settings for bot %s", bot.me.id)
             return
 
         logger.info("[MOVIE UPDATE] Processing channel file: %s (type=%s)", filename, media_type)
