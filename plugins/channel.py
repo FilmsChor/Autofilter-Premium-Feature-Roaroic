@@ -407,20 +407,39 @@ async def send_movie_update(bot, base_name):
 
             msg = None
             poster_url = movie_doc.get("poster_url")
-            try:
-                resized_poster = await fetch_image(poster_url, size=(1920, 1080)) if poster_url else None
-                # Use a generated landscape thumbnail if IMDb/TMDB has no poster.
-                if resized_poster is None:
-                    resized_poster = create_fallback_thumbnail(base_name, size=(1920, 1080))
-                msg = await bot.send_photo(
-                    chat_id=MOVIE_UPDATE_CHANNEL,
-                    photo=resized_poster,
-                    caption=text,
-                    reply_markup=buttons,
-                    parse_mode=enums.ParseMode.HTML
-                )
-            except Exception:
-                logger.exception("[MOVIE UPDATE] Thumbnail post failed for %s; trying text post", base_name)
+            resized_poster = None
+            if poster_url:
+                try:
+                    resized_poster = await fetch_image(poster_url, size=(1920, 1080))
+                except Exception:
+                    logger.exception("[MOVIE UPDATE] Remote poster processing failed for %s", base_name)
+
+            # Always attempt a generated 16:9 image if the remote poster is missing
+            # or Telegram rejects it. Text-only is the final emergency fallback.
+            if resized_poster is not None:
+                try:
+                    msg = await bot.send_photo(
+                        chat_id=MOVIE_UPDATE_CHANNEL,
+                        photo=resized_poster,
+                        caption=text,
+                        reply_markup=buttons,
+                        parse_mode=enums.ParseMode.HTML
+                    )
+                except Exception:
+                    logger.exception("[MOVIE UPDATE] Remote poster send failed for %s", base_name)
+
+            if msg is None:
+                try:
+                    fallback = create_fallback_thumbnail(base_name, size=(1920, 1080))
+                    msg = await bot.send_photo(
+                        chat_id=MOVIE_UPDATE_CHANNEL,
+                        photo=fallback,
+                        caption=text,
+                        reply_markup=buttons,
+                        parse_mode=enums.ParseMode.HTML
+                    )
+                except Exception:
+                    logger.exception("[MOVIE UPDATE] Fallback thumbnail send failed for %s", base_name)
 
             if msg is None:
                 msg = await bot.send_message(
@@ -433,7 +452,7 @@ async def send_movie_update(bot, base_name):
 
             await db.movie_updates.update_one(
                 {"_id": base_name},
-                {"$set": {"message_id": msg.id, "is_photo": bool(poster_url and getattr(msg, "photo", None))}}
+                {"$set": {"message_id": msg.id, "is_photo": bool(getattr(msg, "photo", None))}}
             )
             logger.info("[MOVIE UPDATE] Successfully posted %s to channel %s (message_id=%s)",
                         base_name, MOVIE_UPDATE_CHANNEL, msg.id)
