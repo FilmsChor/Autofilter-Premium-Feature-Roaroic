@@ -96,7 +96,7 @@ MOVIE_UPDATE_CHANNEL = int(environ.get('MOVIE_UPDATE_CHANNEL', '-1004406237317')
 ROAROIC_IMAGE_FETCH = is_enabled(str(environ.get('ROAROIC_IMAGE_FETCH', True)), True)  # On (True) / Off (False)
 LINK_PREVIEW = is_enabled(str(environ.get('LINK_PREVIEW', True)), True) # Shows link preview in notification msg instead of image
 ABOVE_PREVIEW = is_enabled(str(environ.get('ABOVE_PREVIEW', True)), True) # Shows link preview above the text in notification msg if True else below the msg
-TMDB_API_KEY = environ.get('TMDB_API_KEY', '') # TMDB v3 API Key (or v4 Read Access Token) -> https://www.themoviedb.org/settings/api
+TMDB_API_KEY = environ.get('TMDB_BEARER_TOKEN') or environ.get('TMDB_API_KEY', '') # TMDB v4 Read Access Token or v3 API Key; keep secrets in Render environment
 TMDB_POSTER = is_enabled(str(environ.get('TMDB_POSTER', True)), True) # Try TMDB poster first; fall back to IMDb
 LANDSCAPE_POSTER = is_enabled(str(environ.get('LANDSCAPE_POSTER', True)), True) # Shows landscape poster in notification msg
 
