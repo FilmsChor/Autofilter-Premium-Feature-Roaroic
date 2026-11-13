@@ -7,7 +7,7 @@ import logging
 import asyncio
 from datetime import datetime
 from collections import defaultdict
-from plugins.Roaroicfutures.Imdbposter import get_movie_detailsx, fetch_image, get_movie_details
+from plugins.Roaroicfutures.Imdbposter import get_movie_detailsx, fetch_image, get_movie_details, create_fallback_thumbnail
 from database.users_chats_db import db
 from pyrogram import Client, filters, enums
 from info import CHANNELS, MOVIE_UPDATE_CHANNEL, LINK_PREVIEW, ABOVE_PREVIEW, BAD_WORDS, LANDSCAPE_POSTER, TMDB_POSTER
@@ -342,8 +342,8 @@ async def _process_with_lock(bot, filename, caption, media_info, base_name, proc
         movie_doc = {
             "_id": base_name,
             "files": [file_data],
-            "poster_url": (details.get("backdrop_url") or details.get("poster_url")) if LANDSCAPE_POSTER and TMDB_POSTER and not error_tmdb else details.get("poster_url"),
-            "is_landscape": bool(LANDSCAPE_POSTER and TMDB_POSTER and not error_tmdb and details.get("backdrop_url")),
+            "poster_url": details.get("backdrop_url") or details.get("poster_url"),
+            "is_landscape": True,
             "genres": genres,
             "rating": details.get("rating", "N/A"),
             "runtime": details.get("runtime") or "N/A",
@@ -362,6 +362,8 @@ async def _process_with_lock(bot, filename, caption, media_info, base_name, proc
             movie_doc = await db.movie_updates.find_one({"_id": base_name})
             if movie_doc:
                 if any(f["filename"] == filename for f in movie_doc["files"]):
+                    # A repeated upload is a request to publish the movie again.
+                    await send_movie_update(bot, base_name)
                     return
                 await db.movie_updates.update_one(
                     {"_id": base_name},
@@ -371,10 +373,9 @@ async def _process_with_lock(bot, filename, caption, media_info, base_name, proc
                 schedule_update(bot, base_name)
     else:
         if any(f["filename"] == filename for f in movie_doc["files"]):
-            # A previous send may have failed after the DB record was created.
-            # Retry the missing channel post instead of silently ignoring this upload.
-            if not movie_doc.get("message_id"):
-                await send_movie_update(bot, base_name)
+            # Re-uploading the same filename is an explicit retry request.
+            # Publish it again even though the database already has this file.
+            await send_movie_update(bot, base_name)
             return
         await db.movie_updates.update_one(
             {"_id": base_name},
@@ -406,22 +407,20 @@ async def send_movie_update(bot, base_name):
 
             msg = None
             poster_url = movie_doc.get("poster_url")
-            if poster_url:
-                try:
-                    resized_poster = await fetch_image(
-                        poster_url,
-                        size=(1920, 1080) if movie_doc.get("is_landscape") else (853, 1280)
-                    )
-                    if resized_poster:
-                        msg = await bot.send_photo(
-                            chat_id=MOVIE_UPDATE_CHANNEL,
-                            photo=resized_poster,
-                            caption=text,
-                            reply_markup=buttons,
-                            parse_mode=enums.ParseMode.HTML
-                        )
-                except Exception:
-                    logger.exception("[MOVIE UPDATE] Poster send failed for %s; trying text post", base_name)
+            try:
+                resized_poster = await fetch_image(poster_url, size=(1920, 1080)) if poster_url else None
+                # Use a generated landscape thumbnail if IMDb/TMDB has no poster.
+                if resized_poster is None:
+                    resized_poster = create_fallback_thumbnail(base_name, size=(1920, 1080))
+                msg = await bot.send_photo(
+                    chat_id=MOVIE_UPDATE_CHANNEL,
+                    photo=resized_poster,
+                    caption=text,
+                    reply_markup=buttons,
+                    parse_mode=enums.ParseMode.HTML
+                )
+            except Exception:
+                logger.exception("[MOVIE UPDATE] Thumbnail post failed for %s; trying text post", base_name)
 
             if msg is None:
                 msg = await bot.send_message(
