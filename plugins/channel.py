@@ -626,7 +626,7 @@ def generate_movie_message(movie_doc, base_name):
     language_str = ", ".join(sorted(all_languages)) if all_languages else "N/A"
     ott_str = ", ".join(sorted(all_ott_platforms)) if all_ott_platforms else "N/A"
 
-    return script.MOVIE_UPDATE_NOTIFY_TXT.format(
+    message = script.MOVIE_UPDATE_NOTIFY_TXT.format(
         poster_url=movie_doc.get("poster_url", ""),
         imdb_url=movie_doc.get("imdb_url", ""),
         filename=base_name,
@@ -640,3 +640,10 @@ def generate_movie_message(movie_doc, base_name):
         runtime=format_runtime(movie_doc.get("runtime", "N/A")),
         search_link=temp.B_LINK.removesuffix("0") + " "
     )
+
+    # Remove accidental zero-only placeholder lines from channel announcements.
+    message = "\n".join(
+        line for line in message.splitlines()
+        if not (len(line.strip()) >= 5 and set(line.strip()) == {"0"})
+    )
+    return message
