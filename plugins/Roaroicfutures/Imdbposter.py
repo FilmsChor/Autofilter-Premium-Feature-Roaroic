@@ -22,6 +22,32 @@ def list_to_str(lst):
     return ""
 
 
+def format_runtime(value):
+    """Format runtime minutes as compact hours/minutes, e.g. 140 -> 2h 20m."""
+    if value is None:
+        return "N/A"
+    raw = str(value).strip()
+    if not raw or raw.upper() in ("N/A", "NONE"):
+        return "N/A"
+
+    # Handle already formatted values without changing them.
+    if re.search(r"\\b\\d+\\s*h\\b", raw, re.IGNORECASE):
+        return re.sub(r"\\s+", " ", raw)
+
+    match = re.search(r"\\d+", raw)
+    if not match:
+        return raw
+    minutes = int(match.group(0))
+    if minutes <= 0:
+        return "N/A"
+    hours, mins = divmod(minutes, 60)
+    if hours and mins:
+        return f"{hours}h {mins}m"
+    if hours:
+        return f"{hours}h"
+    return f"{mins}m"
+
+
 
 
 
@@ -182,7 +208,7 @@ async def get_movie_details(query, id=False, file=None):
             'kind': movie.get("kind"),
             "imdb_id": f"tt{movie.get('imdbID')}",
             "cast": list_to_str(movie.get("cast")),
-            "runtime": list_to_str(movie.get("runtimes")),
+            "runtime": format_runtime((movie.get("runtimes") or [None])[0]),
             "countries": list_to_str(movie.get("countries")),
             "certificates": list_to_str(movie.get("certificates")),
             "languages": list_to_str(movie.get("languages")),
@@ -367,7 +393,7 @@ async def get_movie_detailsx(query, id=False, file=None):
         "release_date": date,
         "rating": round(float(data["vote_average"]), 1) if data.get("vote_average") else None,
         "votes": int(data.get("vote_count") or 0),
-        "runtime": f"{runtime} min" if runtime else None,
+        "runtime": format_runtime(runtime),
         "certificates": cert,
         "tmdb_url": f"https://www.themoviedb.org/{media_type}/{tmdb_id}",
         "genres": [g["name"] for g in data.get("genres", [])],
