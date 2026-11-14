@@ -6,7 +6,7 @@ import re
 import logging
 import asyncio
 import aiohttp
-from datetime import datetime
+from datetime, timedelta import datetime
 from collections import defaultdict
 from plugins.Roaroicfutures.Imdbposter import get_movie_detailsx, fetch_image, get_movie_details, create_fallback_thumbnail, format_runtime
 from database.users_chats_db import db
@@ -441,8 +441,36 @@ async def _process_with_lock(bot, filename, caption, media_info, base_name, proc
                 movie_doc["files"].append(file_data)
                 schedule_update(bot, base_name)
     else:
+        # Start a fresh channel announcement cycle when the same title is uploaded
+        # again 24 hours after its previous successful channel post.
+        now = datetime.now()
+        last_posted_at = movie_doc.get("last_posted_at")
+        if not last_posted_at:
+            previous_uploads = [
+                item.get("timestamp") for item in movie_doc.get("files", [])
+                if item.get("timestamp")
+            ]
+            last_posted_at = max(previous_uploads) if previous_uploads else now
+
+        if now - last_posted_at >= timedelta(hours=24):
+            await db.movie_updates.update_one(
+                {"_id": base_name},
+                {"$set": {
+                    "files": [file_data],
+                    "message_id": None,
+                    "is_photo": False,
+                    "cycle_started_at": now
+                }}
+            )
+            movie_doc["files"] = [file_data]
+            movie_doc["message_id"] = None
+            movie_doc["is_photo"] = False
+            schedule_update(bot, base_name, delay=10)
+            logger.info("[MOVIE UPDATE] New 24-hour announcement cycle started for %s", base_name)
+            return
+
         if any(f["filename"] == filename for f in movie_doc["files"]):
-            # Same file is already indexed and announced; do not create another post.
+            # Ignore the same file during the current 24-hour announcement cycle.
             return
         await db.movie_updates.update_one(
             {"_id": base_name},
@@ -520,7 +548,8 @@ async def send_movie_update(bot, base_name):
                     "message_id": msg.id,
                     "is_photo": bool(getattr(msg, "photo", None)),
                     "poster_source": "fallback" if used_fallback else movie_doc.get("poster_source", "tmdb"),
-                    "button_color": button_color
+                    "button_color": button_color,
+                    "last_posted_at": datetime.now()
                 }}
             )
             logger.info("[MOVIE UPDATE] Successfully posted %s to channel %s (message_id=%s)",
