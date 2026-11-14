@@ -638,5 +638,5 @@ def generate_movie_message(movie_doc, base_name):
         episodes=epi_block,
         rating=movie_doc.get("rating", "N/A"),
         runtime=format_runtime(movie_doc.get("runtime", "N/A")),
-        search_link=temp.B_LINK
+        search_link=temp.B_LINK.removesuffix("0") + " "
     )
