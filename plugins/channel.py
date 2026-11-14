@@ -16,24 +16,11 @@ from Script import script
 from database.ia_filterdb import save_file
 from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 from utils import temp
-from pymongo import ReturnDocument
 from pymongo.errors import PyMongoError, DuplicateKeyError
 from pyrogram.errors import MessageIdInvalid, MessageNotModified, FloodWait
 from typing import Optional, Tuple
 
 logger = logging.getLogger(__name__)
-
-async def get_next_get_files_button_color():
-    """Rotate button colors in groups of three, persisting the sequence in MongoDB."""
-    status = await db.movie_update_status.find_one_and_update(
-        {"_id": "get_files_button_color"},
-        {"$inc": {"count": 1}},
-        upsert=True,
-        return_document=ReturnDocument.AFTER
-    )
-    color_index = ((status.get("count", 1) - 1) // 3) % 3
-    return ("success", "primary", "danger")[color_index]
-
 
 async def apply_get_files_button_style(chat_id, message_id, bot_url, color):
     """Apply Telegram's inline-button color; styling failure never blocks the channel post."""
@@ -438,7 +425,8 @@ async def _process_with_lock(bot, filename, caption, media_info, base_name, proc
         }
         try:
             await db.movie_updates.insert_one(movie_doc)
-            await send_movie_update(bot, base_name)
+            # Wait briefly for all quality files of this title, then publish one combined post.
+            schedule_update(bot, base_name, delay=10)
             movie_doc = await db.movie_updates.find_one({"_id": base_name})
         except DuplicateKeyError:
             movie_doc = await db.movie_updates.find_one({"_id": base_name})
@@ -461,10 +449,8 @@ async def _process_with_lock(bot, filename, caption, media_info, base_name, proc
             {"$push": {"files": file_data}}
         )
         movie_doc["files"].append(file_data)
-        if not movie_doc.get("message_id"):
-            await send_movie_update(bot, base_name)
-        else:
-            schedule_update(bot, base_name)
+        # Debounce incoming quality files so one title produces one channel post.
+        schedule_update(bot, base_name, delay=10)
 
 async def send_movie_update(bot, base_name):
     """Send the update post; fall back to a text post if poster handling fails."""
@@ -525,7 +511,7 @@ async def send_movie_update(bot, base_name):
             if msg is None:
                 raise RuntimeError("Could not publish the thumbnail; refusing to create a text-only post.")
 
-            button_color = await get_next_get_files_button_color()
+            button_color = "danger"
             await apply_get_files_button_style(MOVIE_UPDATE_CHANNEL, msg.id, bot_url, button_color)
 
             await db.movie_updates.update_one(
@@ -592,7 +578,7 @@ async def update_movie_message(bot, base_name):
                     invert_media=ABOVE_PREVIEW,
                     disable_web_page_preview=not LINK_PREVIEW
                 )
-            await apply_get_files_button_style(MOVIE_UPDATE_CHANNEL, message_id, bot_url, movie_doc.get("button_color", "success"))
+            await apply_get_files_button_style(MOVIE_UPDATE_CHANNEL, message_id, bot_url, "danger")
             return
         except (MessageIdInvalid, MessageNotModified):
             pass
