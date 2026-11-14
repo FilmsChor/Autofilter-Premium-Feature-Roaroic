@@ -16,14 +16,27 @@ from Script import script
 from database.ia_filterdb import save_file
 from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 from utils import temp
+from pymongo import ReturnDocument
 from pymongo.errors import PyMongoError, DuplicateKeyError
 from pyrogram.errors import MessageIdInvalid, MessageNotModified, FloodWait
 from typing import Optional, Tuple
 
 logger = logging.getLogger(__name__)
 
-async def apply_green_get_files_button(chat_id, message_id, bot_url):
-    """Apply Telegram's green inline-button style without affecting the post if styling fails."""
+async def get_next_get_files_button_color():
+    """Rotate button colors in groups of three, persisting the sequence in MongoDB."""
+    status = await db.movie_update_status.find_one_and_update(
+        {"_id": "get_files_button_color"},
+        {"$inc": {"count": 1}},
+        upsert=True,
+        return_document=ReturnDocument.AFTER
+    )
+    color_index = ((status.get("count", 1) - 1) // 3) % 3
+    return ("success", "primary", "danger")[color_index]
+
+
+async def apply_get_files_button_style(chat_id, message_id, bot_url, color):
+    """Apply Telegram's inline-button color; styling failure never blocks the channel post."""
     if not BOT_TOKEN or not message_id:
         return
     payload = {
@@ -33,7 +46,7 @@ async def apply_green_get_files_button(chat_id, message_id, bot_url):
             "inline_keyboard": [[{
                 "text": "ɢᴇᴛ ғɪʟᴇs",
                 "url": bot_url,
-                "style": "success"
+                "style": color
             }]]
         }
     }
@@ -47,11 +60,11 @@ async def apply_green_get_files_button(chat_id, message_id, bot_url):
                 result = await response.json(content_type=None)
                 if response.status != 200 or not result.get("ok"):
                     logger.warning(
-                        "[MOVIE UPDATE] Could not apply green button style: %s",
-                        result.get("description", f"HTTP {response.status}")
+                        "[MOVIE UPDATE] Could not apply %s button style: %s",
+                        color, result.get("description", f"HTTP {response.status}")
                     )
     except Exception as e:
-        logger.warning("[MOVIE UPDATE] Green button styling skipped: %s", e)
+        logger.warning("[MOVIE UPDATE] Button styling skipped: %s", e)
 
 
 # Precomputed sets for faster lookups
@@ -512,14 +525,16 @@ async def send_movie_update(bot, base_name):
             if msg is None:
                 raise RuntimeError("Could not publish the thumbnail; refusing to create a text-only post.")
 
-            await apply_green_get_files_button(MOVIE_UPDATE_CHANNEL, msg.id, bot_url)
+            button_color = await get_next_get_files_button_color()
+            await apply_get_files_button_style(MOVIE_UPDATE_CHANNEL, msg.id, bot_url, button_color)
 
             await db.movie_updates.update_one(
                 {"_id": base_name},
                 {"$set": {
                     "message_id": msg.id,
                     "is_photo": bool(getattr(msg, "photo", None)),
-                    "poster_source": "fallback" if used_fallback else movie_doc.get("poster_source", "tmdb")
+                    "poster_source": "fallback" if used_fallback else movie_doc.get("poster_source", "tmdb"),
+                    "button_color": button_color
                 }}
             )
             logger.info("[MOVIE UPDATE] Successfully posted %s to channel %s (message_id=%s)",
@@ -577,7 +592,7 @@ async def update_movie_message(bot, base_name):
                     invert_media=ABOVE_PREVIEW,
                     disable_web_page_preview=not LINK_PREVIEW
                 )
-            await apply_green_get_files_button(MOVIE_UPDATE_CHANNEL, message_id, bot_url)
+            await apply_get_files_button_style(MOVIE_UPDATE_CHANNEL, message_id, bot_url, movie_doc.get("button_color", "success"))
             return
         except (MessageIdInvalid, MessageNotModified):
             pass
