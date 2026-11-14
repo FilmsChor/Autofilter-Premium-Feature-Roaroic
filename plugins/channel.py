@@ -291,6 +291,28 @@ async def _process_with_lock(bot, filename, caption, media_info, base_name, proc
         "episode": media_info["episode"]
     }
 
+    # Repair older records whose runtime was saved as N/A. For TV series,
+    # TMDB may expose runtime only on individual season episodes.
+    if movie_doc and str(movie_doc.get("runtime") or "N/A").strip().upper() in ("N/A", "NONE", ""):
+        try:
+            runtime_details = {}
+            if TMDB_POSTER:
+                runtime_details = await get_movie_detailsx(base_name) or {}
+            if not runtime_details.get("runtime") or runtime_details.get("error"):
+                runtime_details = await get_movie_details(base_name) or {}
+            recovered_runtime = runtime_details.get("runtime")
+            if recovered_runtime and str(recovered_runtime).strip().upper() != "N/A":
+                await db.movie_updates.update_one(
+                    {"_id": base_name},
+                    {"$set": {"runtime": recovered_runtime}}
+                )
+                movie_doc["runtime"] = recovered_runtime
+                if movie_doc.get("message_id"):
+                    await update_movie_message(bot, base_name)
+                logger.info("[MOVIE UPDATE] Recovered runtime for %s: %s", base_name, recovered_runtime)
+        except Exception:
+            logger.exception("[MOVIE UPDATE] Runtime recovery failed for %s", base_name)
+
     # Retry official TMDB artwork first, then IMDb, for records created without artwork.
     if movie_doc and not movie_doc.get("poster_url"):
         try:
