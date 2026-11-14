@@ -320,6 +320,22 @@ async def get_movie_detailsx(query, id=False, file=None):
     year_val = int(date[:4]) if date and date[:4].isdigit() else None
     runtime = data.get("runtime") if is_movie else (data.get("episode_run_time") or [None])[0]
 
+    # Some TV records (especially newer/short web series) omit episode_run_time
+    # on the series page. Try season 1 episode metadata before returning N/A.
+    if not is_movie and not runtime:
+        try:
+            season_data = await _tmdb_get(session, f"/tv/{tmdb_id}/season/1")
+            episode_runtimes = [
+                ep_runtime
+                for episode in (season_data or {}).get("episodes", [])
+                for ep_runtime in (episode.get("runtime") or [])
+                if isinstance(ep_runtime, (int, float)) and ep_runtime > 0
+            ]
+            if episode_runtimes:
+                runtime = max(set(episode_runtimes), key=episode_runtimes.count)
+        except Exception:
+            logger.exception("Could not retrieve episode runtime for TMDB TV id %s", tmdb_id)
+
     cert = None
     try:
         if is_movie:
