@@ -23,6 +23,11 @@ from info import *
 
 routes = web.RouteTableDef()
 
+@routes.get("/health", allow_head=True)
+async def health_route_handler(request):
+    return web.json_response({"status": "ok"})
+
+
 @routes.get("/favicon.ico")
 async def favicon_route_handler(request):
     return web.FileResponse('roaroicbot/template/favicon.ico')
