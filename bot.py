@@ -42,6 +42,15 @@ ppath = "plugins/*.py"
 files = glob.glob(ppath)
 
 async def roaroicbot_start():
+    # Bind the HTTP port immediately so Render detects the web service
+    # while Telegram clients and database indexes are initializing.
+    app = web.AppRunner(await web_server())
+    await app.setup()
+    bind_address = "0.0.0.0"
+    site = web.TCPSite(app, bind_address, PORT)
+    await site.start()
+    logging.info(f"HTTP server listening on {bind_address}:{PORT}")
+
     print('\n\nInitalizing RoaroicBot')
     print(DEV_CREDIT)
     await roaroicbot.start()
@@ -92,10 +101,6 @@ async def roaroicbot_start():
             f"Could not send restart message to LOG_CHANNEL ({LOG_CHANNEL}): {type(e).__name__}: {e}. "
             "Check that LOG_CHANNEL is the full id (starts with -100), and that the bot is added as an admin in that channel."
         )
-    app = web.AppRunner(await web_server())
-    await app.setup()
-    bind_address = "0.0.0.0"
-    await web.TCPSite(app, bind_address, PORT).start()
     roaroicbot.loop.create_task(keep_alive())
     await idle()
     
