@@ -232,6 +232,7 @@ Mᴇꜱꜱᴀɢᴇ : <b>{}</b>"""
 🌟 ʀᴀᴛɪɴɢ     : <b>{rating}</b>
 {episodes}</blockquote>
 ─┉─•✦•─┉─
+
 🔍 <b>Sᴇᴀʀᴄʜ →</b> {search_link}🔍
 """
 
