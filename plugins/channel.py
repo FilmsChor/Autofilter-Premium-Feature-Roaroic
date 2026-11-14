@@ -5,12 +5,13 @@
 import re
 import logging
 import asyncio
+import aiohttp
 from datetime import datetime
 from collections import defaultdict
 from plugins.Roaroicfutures.Imdbposter import get_movie_detailsx, fetch_image, get_movie_details, create_fallback_thumbnail, format_runtime
 from database.users_chats_db import db
 from pyrogram import Client, filters, enums
-from info import CHANNELS, MOVIE_UPDATE_CHANNEL, LINK_PREVIEW, ABOVE_PREVIEW, BAD_WORDS, LANDSCAPE_POSTER, TMDB_POSTER
+from info import CHANNELS, MOVIE_UPDATE_CHANNEL, LINK_PREVIEW, ABOVE_PREVIEW, BAD_WORDS, LANDSCAPE_POSTER, TMDB_POSTER, BOT_TOKEN
 from Script import script
 from database.ia_filterdb import save_file
 from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton
@@ -20,6 +21,38 @@ from pyrogram.errors import MessageIdInvalid, MessageNotModified, FloodWait
 from typing import Optional, Tuple
 
 logger = logging.getLogger(__name__)
+
+async def apply_green_get_files_button(chat_id, message_id, bot_url):
+    """Apply Telegram's green inline-button style without affecting the post if styling fails."""
+    if not BOT_TOKEN or not message_id:
+        return
+    payload = {
+        "chat_id": chat_id,
+        "message_id": message_id,
+        "reply_markup": {
+            "inline_keyboard": [[{
+                "text": "ɢᴇᴛ ғɪʟᴇs",
+                "url": bot_url,
+                "style": "success"
+            }]]
+        }
+    }
+    try:
+        timeout = aiohttp.ClientTimeout(total=8)
+        async with aiohttp.ClientSession(timeout=timeout) as session:
+            async with session.post(
+                f"https://api.telegram.org/bot{BOT_TOKEN}/editMessageReplyMarkup",
+                json=payload
+            ) as response:
+                result = await response.json(content_type=None)
+                if response.status != 200 or not result.get("ok"):
+                    logger.warning(
+                        "[MOVIE UPDATE] Could not apply green button style: %s",
+                        result.get("description", f"HTTP {response.status}")
+                    )
+    except Exception as e:
+        logger.warning("[MOVIE UPDATE] Green button styling skipped: %s", e)
+
 
 # Precomputed sets for faster lookups
 IGNORE_WORDS = {
@@ -479,6 +512,8 @@ async def send_movie_update(bot, base_name):
             if msg is None:
                 raise RuntimeError("Could not publish the thumbnail; refusing to create a text-only post.")
 
+            await apply_green_get_files_button(MOVIE_UPDATE_CHANNEL, msg.id, bot_url)
+
             await db.movie_updates.update_one(
                 {"_id": base_name},
                 {"$set": {
@@ -542,6 +577,7 @@ async def update_movie_message(bot, base_name):
                     invert_media=ABOVE_PREVIEW,
                     disable_web_page_preview=not LINK_PREVIEW
                 )
+            await apply_green_get_files_button(MOVIE_UPDATE_CHANNEL, message_id, bot_url)
             return
         except (MessageIdInvalid, MessageNotModified):
             pass
