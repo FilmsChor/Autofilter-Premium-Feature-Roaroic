@@ -7,7 +7,7 @@ import logging
 import asyncio
 from datetime import datetime
 from collections import defaultdict
-from plugins.Roaroicfutures.Imdbposter import get_movie_detailsx, fetch_image, get_movie_details, create_fallback_thumbnail
+from plugins.Roaroicfutures.Imdbposter import get_movie_detailsx, fetch_image, get_movie_details, create_fallback_thumbnail, format_runtime
 from database.users_chats_db import db
 from pyrogram import Client, filters, enums
 from info import CHANNELS, MOVIE_UPDATE_CHANNEL, LINK_PREVIEW, ABOVE_PREVIEW, BAD_WORDS, LANDSCAPE_POSTER, TMDB_POSTER
@@ -637,6 +637,6 @@ def generate_movie_message(movie_doc, base_name):
         language=language_str,
         episodes=epi_block,
         rating=movie_doc.get("rating", "N/A"),
-        runtime=movie_doc.get("runtime", "N/A"),
+        runtime=format_runtime(movie_doc.get("runtime", "N/A")),
         search_link=temp.B_LINK
     )
