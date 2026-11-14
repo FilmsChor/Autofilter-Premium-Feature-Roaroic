@@ -6,7 +6,7 @@ import re
 import logging
 import asyncio
 import aiohttp
-from datetime, timedelta import datetime
+from datetime import datetime, timedelta
 from collections import defaultdict
 from plugins.Roaroicfutures.Imdbposter import get_movie_detailsx, fetch_image, get_movie_details, create_fallback_thumbnail, format_runtime
 from database.users_chats_db import db
