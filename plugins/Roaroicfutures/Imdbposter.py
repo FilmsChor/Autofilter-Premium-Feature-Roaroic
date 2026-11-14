@@ -23,18 +23,18 @@ def list_to_str(lst):
 
 
 def format_runtime(value):
-    """Format runtime minutes as compact hours/minutes, e.g. 140 -> 2h 20m."""
+    """Format runtime minutes as compact hours/minutes, e.g. 155 -> 2h 35m."""
     if value is None:
         return "N/A"
     raw = str(value).strip()
     if not raw or raw.upper() in ("N/A", "NONE"):
         return "N/A"
 
-    # Handle already formatted values without changing them.
-    if re.search(r"\\b\\d+\\s*h\\b", raw, re.IGNORECASE):
-        return re.sub(r"\\s+", " ", raw)
+    # Preserve values that are already expressed in hours/minutes.
+    if re.search(r"\b\d+\s*h\b", raw, re.IGNORECASE):
+        return re.sub(r"\s+", " ", raw)
 
-    match = re.search(r"\\d+", raw)
+    match = re.search(r"\d+", raw)
     if not match:
         return raw
     minutes = int(match.group(0))
